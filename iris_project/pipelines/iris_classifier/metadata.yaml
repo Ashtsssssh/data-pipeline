@@ -1,55 +1,78 @@
 blocks:
-  - name: load_iris
+  - uuid: load_iris
+    name: load_iris
     language: python
     type: data_loader
+    status: executed
     upstream_blocks: []
-    downstream_blocks: [check_data_quality]
+    downstream_blocks:
+      - check_data_quality
     file_path: data_loaders/load_iris.py
     configuration: {}
 
-  - name: check_data_quality
+  - uuid: check_data_quality
+    name: check_data_quality
     language: python
     type: transformer
-    upstream_blocks: [load_iris]
-    downstream_blocks: [prepare_data]
+    status: executed
+    upstream_blocks:
+      - load_iris
+    downstream_blocks:
+      - prepare_data
     file_path: transformers/check_data_quality.py
     configuration: {}
 
-  - name: prepare_data
+  - uuid: prepare_data
+    name: prepare_data
     language: python
     type: transformer
-    upstream_blocks: [check_data_quality]
-    downstream_blocks: [train_model]
+    status: executed
+    upstream_blocks:
+      - check_data_quality
+    downstream_blocks:
+      - train_model
     file_path: transformers/prepare_data.py
     configuration: {}
 
-  - name: train_model
+  - uuid: train_model
+    name: train_model
     language: python
     type: transformer
-    upstream_blocks: [prepare_data]
-    downstream_blocks: [save_results, evaluate_model]
+    status: executed
+    upstream_blocks:
+      - prepare_data
+    downstream_blocks:
+      - save_results
+      - evaluate_model
     file_path: transformers/train_model.py
     configuration: {}
 
-  - name: save_results
+  - uuid: save_results
+    name: save_results
     language: python
     type: data_exporter
-    upstream_blocks: [train_model]
+    status: executed
+    upstream_blocks:
+      - train_model
     downstream_blocks: []
     file_path: data_exporters/save_results.py
     configuration: {}
 
-  - name: evaluate_model
+  - uuid: evaluate_model
+    name: evaluate_model
     language: python
     type: data_exporter
-    upstream_blocks: [train_model]
+    status: executed
+    upstream_blocks:
+      - train_model
     downstream_blocks: []
     file_path: data_exporters/evaluate_model.py
     configuration: {}
 
 name: iris_classifier
+type: python
+uuid: iris_classifier
 description: >
-  Iris classification pipeline: load → quality_check → prepare → train → (save | evaluate).
-  Pass max_depth at runtime: mage run iris_project iris_classifier --runtime-vars '{"max_depth": 3}'
+  Iris classification pipeline: load -> quality_check -> prepare -> train -> (save | evaluate).
 executor_type: local_python
 run_pipeline_in_one_process: false
