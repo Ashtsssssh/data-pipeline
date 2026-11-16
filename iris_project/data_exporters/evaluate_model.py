@@ -1,17 +1,19 @@
 """
 iris_project/data_exporters/evaluate_model.py
 Mage data exporter block (Part C3) — evaluation branch off train_model.
-Prints confusion matrix and per-class metrics; does NOT save predictions.
-Runs in parallel with save_results as a second downstream of train_model.
 """
 
-try:
-    from mage_ai.data_preparation.decorators import data_exporter, test
-except ImportError:
-    def data_exporter(fn):
-        return fn
-    def test(fn):
-        return fn
+if 'data_exporter' not in globals():
+    try:
+        from mage_ai.data_preparation.decorators import data_exporter
+    except ImportError:
+        def data_exporter(fn): return fn
+
+if 'test' not in globals():
+    try:
+        from mage_ai.data_preparation.decorators import test
+    except ImportError:
+        def test(fn): return fn
 
 import pandas as pd
 from sklearn.metrics import (
@@ -23,10 +25,6 @@ from sklearn.metrics import (
 
 @data_exporter
 def export_data(df: pd.DataFrame, *args, **kwargs) -> None:
-    """
-    Compute and print the confusion matrix and classification report
-    for the test-set predictions produced by train_model.
-    """
     test_df = df[df["split"] == "test"].copy()
 
     y_true = test_df["target"].values
@@ -56,5 +54,4 @@ def export_data(df: pd.DataFrame, *args, **kwargs) -> None:
 
 @test
 def test_evaluation_ran(output=None, *args, **kwargs) -> None:
-    """Evaluation block is considered passing if it runs without error."""
-    pass  # Errors in export_data() will cause this block to fail automatically
+    pass

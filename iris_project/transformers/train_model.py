@@ -4,13 +4,17 @@ Mage transformer block — trains a DecisionTreeClassifier and returns predictio
 Accepts --runtime-vars max_depth=N to sweep depths.
 """
 
-try:
-    from mage_ai.data_preparation.decorators import transformer, test
-except ImportError:
-    def transformer(fn):
-        return fn
-    def test(fn):
-        return fn
+if 'transformer' not in globals():
+    try:
+        from mage_ai.data_preparation.decorators import transformer
+    except ImportError:
+        def transformer(fn): return fn
+
+if 'test' not in globals():
+    try:
+        from mage_ai.data_preparation.decorators import test
+    except ImportError:
+        def test(fn): return fn
 
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
@@ -19,13 +23,6 @@ from sklearn.metrics import accuracy_score
 
 @transformer
 def transform(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
-    """
-    Train a DecisionTreeClassifier.
-    Runtime variable:
-        max_depth (int, default=3)  — passed via --runtime-vars max_depth=N
-    Returns the original DataFrame with added columns:
-        predicted, test_accuracy
-    """
     max_depth = int(kwargs.get("max_depth", 3))
 
     feature_cols = [
@@ -46,21 +43,12 @@ def transform(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
     df["predicted"]     = clf.predict(df[feature_cols])
     df["test_accuracy"] = accuracy_score(y_test, clf.predict(X_test))
 
-    print(f"[train_model] max_depth={max_depth}  "
-          f"test_accuracy={df['test_accuracy'].iloc[0]:.4f}")
+    print(f"[train_model] max_depth={max_depth} test_accuracy={df['test_accuracy'].iloc[0]:.4f}")
     return df
 
 
-# ---------------------------------------------------------------------------
-# @test — GATE: accuracy must be >= 0.90 to allow save_results to run
-# ---------------------------------------------------------------------------
 @test
 def test_accuracy_gate(df: pd.DataFrame) -> None:
-    """
-    Block save_results from running if test accuracy is below threshold.
-    This is better than saving first and checking afterwards because
-    the bad file never reaches disk.
-    """
     acc = df["test_accuracy"].iloc[0]
     assert acc >= 0.90, (
         f"Test accuracy {acc:.4f} is below the 0.90 threshold — "
