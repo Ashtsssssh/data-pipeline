@@ -1,0 +1,40 @@
+# Environment variables
+.env
+.env.*
+
+# Python artifacts
+*.pkl
+*.csv
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Mage
+mage.log
+.mage/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Snowflake credentials
+snowflake_config.json
+credentials.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Reference HTML files (lecture notes - not submission items)
+elt/references/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
